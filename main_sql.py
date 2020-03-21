@@ -1,8 +1,9 @@
 from bs4 import BeautifulSoup as bs
 import requests
 import sqlite3
+import json
 
-class CoronaScrape():
+class CoronaNewsScrape():
     def __init__(self):
         self.conn = sqlite3.connect("db/news.db")
         self.c = self.conn.cursor()
@@ -106,6 +107,37 @@ class CoronaScrape():
             self.c.execute(query, values)
             self.conn.commit()
 
-CoronaScrape().bbc_scrape()
-CoronaScrape().guardian_scrape()
-CoronaScrape().nyt_scrape()
+class CoronaDataScrape():
+    def __init__(self):
+        self.conn = sqlite3.connect("db/data.db")
+        self.c = self.conn.cursor()
+
+        query = "SELECT count(name) FROM sqlite_master WHERE type='table' AND name='countrydata'"
+        self.c.execute(query)
+        if not self.c.fetchone()[0] == 1:
+            self.__createtables()
+    
+    def __createtables(self):
+        self.c.execute("""CREATE TABLE countrydata (
+                        country text,
+                        total deaths integer,
+                        new deaths integer,
+                        total cases integer,
+                        new cases integer,
+                        date text
+                        )""")
+        
+        self.conn.commit()
+    
+    def country_data_scrape(self):
+        data_url = "https://mattblackworld.com/api/countries"
+        
+        req = requests.get(data_url)
+        response = json.loads(req.text)
+
+
+        
+
+CoronaNewsScrape().bbc_scrape()
+CoronaNewsScrape().guardian_scrape()
+CoronaNewsScrape().nyt_scrape()
