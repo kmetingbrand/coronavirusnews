@@ -42,10 +42,10 @@ class CoronaScrape():
         self.soup = bs(self.source, 'xml')
 
         for article in self.soup.find_all('item'):
-            title1 = article.title.text
-            summary1 = article.description.text
-            website1 = article.guid.text
-            date1 = article.pubDate.text
+            title1 = article.title.text.replace("'","\\")
+            summary1 = article.description.text.replace("'","\\")
+            website1 = article.guid.text.replace("'","\\")
+            date1 = article.pubDate.text.replace("'","\\")
             if "corona" in summary1 or "corona" in title1 or "virus" in summary1 or "virus" in title1:
                 self.news_appender_bbc(title1, summary1, website1, date1)
 
@@ -55,10 +55,10 @@ class CoronaScrape():
         self.soup2 = bs(self.source2, 'xml')
 
         for article2 in self.soup2.find_all('item'):
-            title2 = article2.title.text
-            summary2 = article2.description.text
-            website2 = article2.link.text
-            date2 = article2.pubDate.text
+            title2 = article2.title.text.replace("'","\\")
+            summary2 = article2.description.text.replace("'","\\")
+            website2 = article2.link.text.replace("'","\\")
+            date2 = article2.pubDate.text.replace("'","\\")
             if "corona" in summary2 or "corona" in title2 or "virus" in summary2 or "virus" in title2:
                 self.news_appender_guardian(title2, summary2, website2, date2)
 
@@ -68,61 +68,41 @@ class CoronaScrape():
         self.soup3 = bs(self.source3, 'xml')
         
         for article3 in self.soup3.find_all('item'):
-            title3 = article3.title.text
-            summary3 = article3.description.text
-            website3 = article3.link.text
-            date3 = article3.pubDate.text
+            title3 = article3.title.text.replace("'","\\")
+            summary3 = article3.description.text.replace("'","\\")
+            website3 = article3.link.text.replace("'","\\")
+            date3 = article3.pubDate.text.replace("'","\\")
+            
             if "corona" in summary3 or "corona" in title3 or "virus" in summary3 or "virus" in title3:
                 self.news_appender_nyt(title3, summary3, website3, date3)
     
     def news_appender_bbc(self, title1, summary1, website1, date1):
-        is_in_table = False
-        information = f"SELECT * FROM bbc"
-        self.c.execute(information)
-        title = title1
-        summary = summary1
-        website = website1
-        date = date1
-        for row in self.c.fetchall():
-            if row[1] == website:
-                is_in_table = True
-        if is_in_table == False:
+        query = f"SELECT * FROM bbc WHERE title = '{title1}'"
+        self.c.execute(query)
+        result = self.c.fetchone()
+        if not result:
             query = f"INSERT INTO bbc VALUES(?, ?, ?, ?)"
-            values = (title, summary, website, date)
+            values = (title1, summary1, website1, date1)
             self.c.execute(query, values)
             self.conn.commit()
 
     def news_appender_guardian(self, title2, summary2, website2, date2):
-        is_in_table = False
-        information = f"SELECT * FROM guardian"
-        self.c.execute(information)
-        title = title2
-        summary = summary2
-        website = website2
-        date = date2
-        for row in self.c.fetchall():
-            if row[1] == website:
-                is_in_table = True
-        if is_in_table == False:
+        query = f"SELECT * FROM guardian WHERE title = '{title2}'"
+        self.c.execute(query)
+        result = self.c.fetchone()
+        if not result:
             query = f"INSERT INTO guardian VALUES(?, ?, ?, ?)"
-            values = (title, summary, website, date)
+            values = (title2, summary2, website2, date2)
             self.c.execute(query, values)
             self.conn.commit()
 
     def news_appender_nyt(self, title3, summary3, website3, date3):
-        is_in_table = False
-        information = f"SELECT * FROM nyt"
-        self.c.execute(information)
-        title = title3
-        summary = summary3
-        website = website3
-        date = date3
-        for row in self.c.fetchall():
-            if row[1] == website:
-                is_in_table = True
-        if is_in_table == False:
+        query = f"SELECT * FROM nyt WHERE title = '{title3}'"
+        self.c.execute(query)
+        result = self.c.fetchone()
+        if not result:
             query = f"INSERT INTO nyt VALUES(?, ?, ?, ?)"
-            values = (title, summary, website, date)
+            values = (title3, summary3, website3, date3)
             self.c.execute(query, values)
             self.conn.commit()
 
