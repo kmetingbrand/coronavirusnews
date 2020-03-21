@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup as bs
 from datetime import datetime
+from matplotlib import pyplot as plt
 import requests
 import sqlite3
 import json
@@ -213,6 +214,24 @@ class CoronaDataScrape():
             values = (region, total_deaths, total_cases, date)
             self.c.execute(query, values)
             self.conn.commit()
+
+class StatisticalPlotting:
+    def __init__(self):
+        self.conn = sqlite3.connect("db/data.db")
+        self.c = self.conn.cursor()
+    
+    def total_death(self):
+        query = f"SELECT total_deaths, date FROM changetrack"
+        self.c.execute(query)
+
+        data = []
+        xTickMarks = []
+
+        for row in self.c.fetchall():
+            data.append(int(row[1]))
+            xTickMarks.append(str(row[0]))
+
+            self.total_death_plot(data)
 
 CoronaDataScrape().region_data_scrape()
 CoronaDataScrape().country_data_scrape()
