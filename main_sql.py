@@ -135,9 +135,10 @@ class CoronaDataScrape():
         req = requests.get(data_url)
         response = json.loads(req.text)
 
-
+        for i in range(0, len(response)):
+            pass
         
 
-CoronaNewsScrape().bbc_scrape()
+"""CoronaNewsScrape().bbc_scrape()
 CoronaNewsScrape().guardian_scrape()
-CoronaNewsScrape().nyt_scrape()
+CoronaNewsScrape().nyt_scrape()"""
