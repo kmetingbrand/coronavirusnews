@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup as bs
+from datetime import datetime
 import requests
 import sqlite3
 import json
@@ -120,25 +121,102 @@ class CoronaDataScrape():
     def __createtables(self):
         self.c.execute("""CREATE TABLE countrydata (
                         country text,
-                        total deaths integer,
-                        new deaths integer,
-                        total cases integer,
-                        new cases integer,
+                        total_deaths integer,
+                        total_cases integer,
+                        date text
+                        )""")
+
+        self.c.execute("""CREATE TABLE regiondata (
+                        region text,
+                        total_deaths integer,
+                        total_cases integer,
+                        date text
+                        )""")
+        
+        self.c.execute("""CREATE TABLE changetrack (
+                        region text,
+                        total_deaths integer,
+                        total_cases integer,
                         date text
                         )""")
         
         self.conn.commit()
     
     def country_data_scrape(self):
-        data_url = "https://mattblackworld.com/api/countries"
+        data_url = "https://mattblackworld.com/api/totals"
         
         req = requests.get(data_url)
-        response = json.loads(req.text)
-
-        for i in range(0, len(response)):
-            pass
+        result = json.loads(req.text)
+    
+        for r in result:
+            country = r['country']
+            total_deaths = r['total_deaths']
+            total_cases = r['total_cases']
+            date = datetime.date(datetime.now())
         
+            self.country_data_appender(country, total_deaths, total_cases, date)
+    
+    def country_data_appender(self, country, total_deaths, total_cases, date):
+        query = f"SELECT * FROM countrydata WHERE country = '{country}' AND date = '{date}'"
+        self.c.execute(query)
+        result = self.c.fetchone()
+        if not result:
+            query = f"INSERT INTO countrydata VALUES(?, ?, ?, ?)"
+            values = (country, total_deaths, total_cases, date)
+            self.c.execute(query, values)
+            self.conn.commit()
 
-"""CoronaNewsScrape().bbc_scrape()
+    def region_data_scrape(self):
+        data_url = "https://mattblackworld.com/api/regions"
+
+        req = requests.get(data_url)
+        result = json.loads(req.text)
+
+        for r in result:
+            region = r['region']
+            total_deaths = r['total_deaths']
+            total_cases = r['total_cases']
+            date = r['date']
+
+            self.region_data_appender(region, total_deaths, total_cases, date)
+
+    def region_data_appender(self, region, total_deaths, total_cases, date):
+        query = f"SELECT * FROM regiondata WHERE region = '{region}' AND date = '{date}'"
+        self.c.execute(query)
+        result = self.c.fetchone()
+        if not result:
+            query = f"INSERT INTO regiondata VALUES (?, ?, ?, ?)"
+            values = (region, total_deaths, total_cases, date)
+            self.c.execute(query, values)
+            self.conn.commit()
+
+    def totalr_data_scrape(self):
+        data_url = "https://mattblackworld.com/api/regions/totals"
+
+        req = requests.get(data_url)
+        result = json.loads(req.text)
+
+        for r in result:
+            region = r['region']
+            total_deaths = r['total_deaths']
+            total_cases = r['total_cases']
+            date = datetime.date(datetime.now())
+
+            self.totalr_data_appender(region, total_deaths, total_cases, date)
+        
+    def totalr_data_appender(self, region, total_deaths, total_cases, date):
+        query = f"SELECT * FROM changetrack WHERE region = '{region}'AND date = '{date}'"
+        self.c.execute(query)
+        result = self.c.fetchone()
+        if not result:
+            query = f"INSERT INTO changetrack VALUES(?, ?, ?, ?)"
+            values = (region, total_deaths, total_cases, date)
+            self.c.execute(query, values)
+            self.conn.commit()
+
+CoronaDataScrape().region_data_scrape()
+CoronaDataScrape().country_data_scrape()
+CoronaDataScrape().totalr_data_scrape()
+CoronaNewsScrape().bbc_scrape()
 CoronaNewsScrape().guardian_scrape()
-CoronaNewsScrape().nyt_scrape()"""
+CoronaNewsScrape().nyt_scrape()
