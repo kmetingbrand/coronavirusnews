@@ -220,19 +220,106 @@ class StatisticalPlotting:
         self.conn = sqlite3.connect("db/data.db")
         self.c = self.conn.cursor()
     
-    def total_death(self):
-        query = f"SELECT total_deaths, date FROM changetrack"
-        self.c.execute(query)
+    def graph_creator(self):
+        
+        print("Which would you like view? Region or country?")
+        selection = input("Input: ")
+        if selection == "Region" or "region":
+            print("Which statistics would you like to view? Cases or deaths?")
+            choice = input("Input: ")
+            if choice == "cases" or "Cases":
+                print("Which of the following regions would you like to view - Europe, Oceania, Africa, Asia, or America?")
+                region = input("Input: ")
+                query = f"SELECT total_cases, date FROM regiondata WHERE region='{region}'"
+                self.c.execute(query)
 
-        data = []
-        xTickMarks = []
+                x = data = []
+                y = dates = []
 
-        for row in self.c.fetchall():
-            data.append(int(row[1]))
-            xTickMarks.append(str(row[0]))
+                for row in self.c.fetchall():
+                    data.append(str(row[1]))
+                    dates.append(int(row[0]))
 
-            self.total_death_plot(data)
 
+                plt.plot(x, y)
+                plt.title(f"{region} total case count changes")
+                plt.ylabel("Cases")
+                plt.xlabel("Date")
+                plt.xticks(rotation=90)
+                plt.legend(f"{region}")
+                plt.show()
+
+            elif selection == "Region" or "region" and choice == "deaths" or "Deaths":
+                print("Which of the following regions would you like to view - Europe, Oceania, Africa, Asia, or America?")
+                region = input("Input: ")
+
+                query = f"SELECT total_deaths, date FROM regiondata WHERE region='{region}'"
+                result = self.c.execute(query)
+
+                x = data = []
+                y = dates = []
+
+                for row in self.c.fetchall():
+                    data.append(str(row[1]))
+                    dates.append(int(row[0]))
+
+
+                plt.plot(x, y)
+                plt.title(f"{region} total death count changes")
+                plt.ylabel("Deaths")
+                plt.xlabel("Date")
+                plt.xticks(rotation=90)
+                plt.legend(f"{region}")
+                plt.show()
+
+        elif selection == "country" or "Country":
+            print("Which statistics would you like to view? Cases or deaths?")
+            choice = input("Input: ")
+            if choice == "cases" or "Cases":
+                print("Please input the name of the country whose data you would like to see plotted!")
+                country = input("Input: ")
+                
+                query = f"SELECT total_cases, date FROM countrydata WHERE country='{country}'"
+                result = self.c.execute(query)
+
+                x = data = []
+                y = dates = []
+
+                for row in self.c.fetchall():
+                    data.append(str(row[1]))
+                    dates.append(int(row[0]))
+
+
+                plt.plot(x, y)
+                plt.title(f"{country} total case count changes")
+                plt.ylabel("Cases")
+                plt.xlabel("Date")
+                plt.xticks(rotation=90)
+                plt.legend(f"{country}")
+                plt.show()
+            elif choice == "deaths" or "Deaths":
+                print("Please input the name of the country whose data you would like to see plotted!")
+                country = input("Input: ")
+                query = f"SELECT total_deaths, date FROM countrydata WHERE region='{country}'"
+                result = self.c.execute(query)
+
+                x = data = []
+                y = dates = []
+
+                for row in self.c.fetchall():
+                    data.append(str(row[1]))
+                    dates.append(int(row[0]))
+
+
+                plt.plot(x, y)
+                plt.title(f"{country} total death count changes")
+                plt.ylabel("Deaths")
+                plt.xlabel("Date")
+                plt.xticks(rotation=90)
+                plt.legend(f"{country}")
+                plt.show()
+
+StatisticalPlotting().graph_creator()
 CoronaDataScrape().region_data_scrape()
 CoronaDataScrape().country_data_scrape()
 CoronaDataScrape().totalr_data_scrape()

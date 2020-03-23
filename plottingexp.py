@@ -6,7 +6,7 @@ c = conn.cursor()
 
 region = input("Region: ")
 
-query = f"SELECT total_deaths, date FROM regiondata WHERE region='{region}'"
+query = f"SELECT total_cases, date FROM regiondata WHERE region='{region}'"
 result = c.execute(query)
 
 x = data = []
@@ -19,8 +19,8 @@ for row in c.fetchall():
 
 
 plt.plot(x, y)
-plt.title(f"{region} death toll changes")
-plt.ylabel("Death toll")
+plt.title(f"{region} total case count changes")
+plt.ylabel("Cases")
 plt.xlabel("Date")
 plt.xticks(rotation=90)
 plt.legend(f"{region}")
