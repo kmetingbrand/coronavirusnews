@@ -217,17 +217,26 @@ class CoronaDataScrape():
 
 class StatisticalPlotting:
     def __init__(self):
+        
         self.conn = sqlite3.connect("db/data.db")
         self.c = self.conn.cursor()
     
     def graph_creator(self):
-        
-        print("Which would you like view? Region or country?")
+
+        selection_list = []
+
+        print("Which would you like view? Region or country? Write 1 for region, 2 for country")
         selection = input("Input: ")
-        if selection == "Region" or "region":
-            print("Which statistics would you like to view? Cases or deaths?")
+        selection_list.append(selection)
+        selection_choice = int(selection_list[0])
+
+        if selection_choice == 1:
+            choice_list = []
+            print("Which statistics would you like to view? Cases (write 1) or deaths (write 2?")
             choice = input("Input: ")
-            if choice == "cases" or "Cases":
+            choice_list.append(choice)
+            choice_choice = int(choice_list[0])
+            if choice_choice == 1:
                 print("Which of the following regions would you like to view - Europe, Oceania, Africa, Asia, or America?")
                 region = input("Input: ")
                 query = f"SELECT total_cases, date FROM regiondata WHERE region='{region}'"
@@ -249,12 +258,12 @@ class StatisticalPlotting:
                 plt.legend(f"{region}")
                 plt.show()
 
-            elif selection == "Region" or "region" and choice == "deaths" or "Deaths":
+            elif choice_choice == 2:
                 print("Which of the following regions would you like to view - Europe, Oceania, Africa, Asia, or America?")
                 region = input("Input: ")
 
                 query = f"SELECT total_deaths, date FROM regiondata WHERE region='{region}'"
-                result = self.c.execute(query)
+                self.c.execute(query)
 
                 x = data = []
                 y = dates = []
@@ -272,15 +281,18 @@ class StatisticalPlotting:
                 plt.legend(f"{region}")
                 plt.show()
 
-        elif selection == "country" or "Country":
-            print("Which statistics would you like to view? Cases or deaths?")
+        elif selection_choice == 2:
+            choice_list = []
+            print("Which statistics would you like to view? Cases (write 1) or deaths (write 2)?")
             choice = input("Input: ")
-            if choice == "cases" or "Cases":
+            choice_list.append(choice)
+            choice_choice = int(choice_list[0])
+            if choice_choice == 1:
                 print("Please input the name of the country whose data you would like to see plotted!")
                 country = input("Input: ")
                 
                 query = f"SELECT total_cases, date FROM countrydata WHERE country='{country}'"
-                result = self.c.execute(query)
+                self.c.execute(query)
 
                 x = data = []
                 y = dates = []
@@ -297,11 +309,12 @@ class StatisticalPlotting:
                 plt.xticks(rotation=90)
                 plt.legend(f"{country}")
                 plt.show()
-            elif choice == "deaths" or "Deaths":
+            
+            elif choice_choice == 2:
                 print("Please input the name of the country whose data you would like to see plotted!")
                 country = input("Input: ")
                 query = f"SELECT total_deaths, date FROM countrydata WHERE region='{country}'"
-                result = self.c.execute(query)
+                self.c.execute(query)
 
                 x = data = []
                 y = dates = []
