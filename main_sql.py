@@ -150,11 +150,11 @@ class CoronaDataScrape():
         result = json.loads(req.text)
     
         for r in result:
-            country = r['country']
+            country = r['country'].replace("'","\\")
             total_deaths = r['total_deaths']
             total_cases = r['total_cases']
             date = datetime.date(datetime.now())
-        
+
             self.country_data_appender(country, total_deaths, total_cases, date)
     
     def country_data_appender(self, country, total_deaths, total_cases, date):
@@ -313,7 +313,7 @@ class StatisticalPlotting:
             elif choice_choice == 2:
                 print("Please input the name of the country whose data you would like to see plotted!")
                 country = input("Input: ")
-                query = f"SELECT total_deaths, date FROM countrydata WHERE region='{country}'"
+                query = f"SELECT total_deaths, date FROM countrydata WHERE country='{country}'"
                 self.c.execute(query)
 
                 x = data = []
